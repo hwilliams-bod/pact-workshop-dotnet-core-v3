@@ -30,7 +30,6 @@
     <None Remove="XUnitHelpers\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Middleware\" />
     <Folder Include="XUnitHelpers\" />
   </ItemGroup>
 </Project>

@@ -19,6 +19,7 @@ namespace Consumer
             {
                 try
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", AuthorizationHeaderValue());
                     var response = await client.GetAsync($"/api/products");
                     return response;
                 }
@@ -35,7 +36,8 @@ namespace Consumer
             {
                 try
                 {
-                    var response = await client.GetAsync($"/api/product/{id}");
+                    client.DefaultRequestHeaders.Add("Authorization", AuthorizationHeaderValue());
+                    var response = await client.GetAsync($"/api/products/{id}");
                     return response;
                 }
                 catch (Exception ex)
@@ -44,5 +46,11 @@ namespace Consumer
                 }
             }
         }
+
+        private string AuthorizationHeaderValue()
+        {
+            return $"Bearer {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")}";
+        }
+
     }
 }

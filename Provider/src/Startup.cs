@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using provider.Repositories;
+using provider.Middleware;
+
 
 namespace Provider
 {
@@ -32,6 +34,7 @@ namespace Provider
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseMiddleware<AuthorizationMiddleware>();
             app.UseRouting();
             app.UseEndpoints(e => e.MapControllers());
         }
