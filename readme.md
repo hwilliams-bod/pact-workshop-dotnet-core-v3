@@ -855,7 +855,8 @@ public async void GetAllProducts()
             .WithHeader("Content-Type", "application/json; charset=utf-8")
             .WithJsonBody(new TypeMatcher(products));
 
-    await pact.VerifyAsync(async ctx => {
+    await pact.VerifyAsync(async ctx =>
+    {
         var response = await ApiClient.GetAllProducts();
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     });
@@ -874,7 +875,8 @@ public async void GetProduct()
             .WithHeader("Content-Type", "application/json; charset=utf-8")
             .WithJsonBody(new TypeMatcher(products[1]));
 
-    await pact.VerifyAsync(async ctx => {
+    await pact.VerifyAsync(async ctx =>
+    {
         var response = await ApiClient.GetProduct(10);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     });
@@ -893,7 +895,8 @@ public async void NoProductsExist()
             .WithHeader("Content-Type", "application/json; charset=utf-8")
             .WithJsonBody(new TypeMatcher(new List<object>()));
 
-    await pact.VerifyAsync(async ctx => {
+    await pact.VerifyAsync(async ctx =>
+    {
         var response = await ApiClient.GetAllProducts();
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     });
@@ -908,28 +911,29 @@ public async void ProductDoesNotExist()
             .WithRequest(HttpMethod.Get, "/api/products/11")
             .WithHeader("Authorization", Match.Regex("Bearer 2019-01-14T11:34:18.045Z", "Bearer \\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z"))
         .WillRespond()
-            .WithStatus(HttpStatusCode.Unauthorized);
+            .WithStatus(HttpStatusCode.NotFound);
 
     await pact.VerifyAsync(async ctx => {
         var response = await ApiClient.GetProduct(11);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     });
+}
 
-    [Fact]
-    public async void GetProductMissingAuthHeader()
+[Fact]
+public async void GetProductMissingAuthHeader()
+{
+    // Arange
+    pact.UponReceiving("A valid request for a product")
+            .Given("No auth token is provided")
+            .WithRequest(HttpMethod.Get, "/api/products/10")
+        .WillRespond()
+            .WithStatus(HttpStatusCode.Unauthorized);
+
+    await pact.VerifyAsync(async ctx =>
     {
-        // Arange
-        pact.UponReceiving("A valid request for a product")
-                .Given("No auth token is provided")
-                .WithRequest(HttpMethod.Get, "/api/products/10")
-            .WillRespond()
-                .WithStatus(HttpStatusCode.Unauthorized);
-
-        await pact.VerifyAsync(async ctx => {
-            var response = await ApiClient.GetProduct(10);
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        });
-    }
+        var response = await ApiClient.GetProduct(10);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    });
 }
 ```
 
@@ -1425,7 +1429,7 @@ namespace tests.Middleware
 }
 ```
 
-Then wire the new middleware in `Provider/tests/Middleware/AuthTokenRequestFilter.cs`
+Then wire the new middleware in `Provider/tests/TestStartup.cs`
 
 ```csharp
 // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
